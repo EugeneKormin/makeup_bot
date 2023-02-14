@@ -8,12 +8,11 @@ class API(object):
         self.__price = ""
         self.__rating = ""
 
-    def set_params(self, param):
-        print("we are in API class now")
-        return param
-
     @staticmethod
-    def send_api() -> str:
-        response = requests.get("http://makeup-api.herokuapp.com/api/v1/products.json?brand=maybelline").text
+    def send_api(params) -> str:
+        BRAND = params["brand"]
+        TYPE = params["params"]
+        response = requests.get(f"http://makeup-api.herokuapp.com/api/v1/products.json?brand={BRAND}&product_type={TYPE}").text
+        print(response)
         parsed_response = ''
         return parsed_response
