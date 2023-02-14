@@ -6,7 +6,7 @@ app = Flask(__name__)
 api = API()
 
 
-@app.route('/send_api/', methods=['GET'])
+@app.route('/send-api/', methods=['GET'])
 def send_api():
     parsed_response = api.send_api(params=request.args)
     return parsed_response
