@@ -108,36 +108,18 @@ class API(object):
 
         return CHECK_CATEGORY, CHECK_TAG
 
-    @staticmethod
-    def process_price(PRICE_RANGE):
-        if PRICE_RANGE == "all":
-            PROCESSED_PRICE_RANGE = "price_greater_than=0"
-        elif PRICE_RANGE == "cheap":
-            PROCESSED_PRICE_RANGE = "price_less_than=5"
-        elif PRICE_RANGE == "middle":
-            PROCESSED_PRICE_RANGE = "price_greater_than=5&price_less_than=15"
-        elif PRICE_RANGE == "not expensive":
-            PROCESSED_PRICE_RANGE = "price_less_than=10"
-        elif PRICE_RANGE == "not cheap":
-            PROCESSED_PRICE_RANGE = "price_greater_than=10"
-        elif PRICE_RANGE == "expensive":
-            PROCESSED_PRICE_RANGE = "price_greater_than=15"
-
-        return PROCESSED_PRICE_RANGE
-
     def send_api(self, params) -> str:
         parsed_response = []
 
         BRAND = params["brand"]
-        TYPE = params["type"]
-        CATEGORY = params["category"]
+        RATING = params["rating"]
         TAG = params["tag"]
         PRICE_RANGE = params["price_range"]
-
-        PROCESSED_PRICE_RANGE = self.process_price(PRICE_RANGE=PRICE_RANGE)
+        TYPE = params["type"]
+        CATEGORY = params["category"]
 
         REQUEST = f"http://makeup-api.herokuapp.com/api/v1/products.json?" \
-                  f"{PROCESSED_PRICE_RANGE}&brand={BRAND}&product_type={TYPE}&category={CATEGORY}&tag={TAG}"
+                  f"{PRICE_RANGE}&brand={BRAND}&product_type={TYPE}&category={CATEGORY}&tag={TAG}&rating="
         response = requests.get(REQUEST).text
         data = json.loads(response)
 
@@ -161,5 +143,8 @@ class API(object):
             "category": CHECK_CATEGORY,
             "tag": CHECK_TAG
         }
+
+        if parsed_response == []:
+            print("no results")
 
         return res
