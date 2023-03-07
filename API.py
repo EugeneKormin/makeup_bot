@@ -109,17 +109,18 @@ class API(object):
         return CHECK_CATEGORY, CHECK_TAG
 
     def send_api(self, params) -> str:
-        parsed_response = []
-
         BRAND = params["brand"]
         RATING = params["rating"]
         TAG = params["tag"]
         PRICE_RANGE = params["price_range"]
         TYPE = params["type"]
         CATEGORY = params["category"]
+        UNIT_PRICE = params["unit-currency"]
+        SORT_DIRECTION = params["sort_direction"]
+        SORT_BY = params["sort_by"]
 
         REQUEST = f"http://makeup-api.herokuapp.com/api/v1/products.json?" \
-                  f"{PRICE_RANGE}&brand={BRAND}&product_type={TYPE}&category={CATEGORY}&tag={TAG}&rating="
+                  f"{PRICE_RANGE}&brand={BRAND}&rating={RATING}&product_type={TYPE}&category={CATEGORY}&tag={TAG}"
         response = requests.get(REQUEST).text
         data = json.loads(response)
 
@@ -129,22 +130,31 @@ class API(object):
             TAG=TAG
         )
 
+        name_list = []
+        image_link_list = []
+        description_list = []
+        price_list = []
+        product_link_list = []
+
         for el in data:
-            parsed_response.append({
-                "name": el['name'],
-                "image_link": el["image_link"],
-                "description": el["description"],
-                "buttonText": f"purchase for {el['price']}",
-                "product_link": el["product_link"],
-            })
+            name_list.append(el['name'])
+            image_link_list.append(el['image_link'])
+            description_list.append(el['description'])
+            price_list.append(el['price'])
+            product_link_list.append(el['product_link'])
+
+        parsed_response = pd.DataFrame({
+            "name": name_list,
+            "image_link": image_link_list,
+            "description": description_list,
+            "price":price_list,
+            "product_link": product_link_list
+        }).sort_values(by="price")
 
         res = {
             "parsed_response": parsed_response,
             "category": CHECK_CATEGORY,
             "tag": CHECK_TAG
         }
-
-        if parsed_response == []:
-            print("no results")
 
         return res
