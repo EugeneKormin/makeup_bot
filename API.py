@@ -119,7 +119,7 @@ class API(object):
         FROM, TO = RATING.split('_')[0], RATING.split('_')[1]
         return f"rating_less_than={TO}&rating_greater_than={FROM}"
 
-    def send_api(self, params) -> str:
+    def send_api(self, params) -> dict:
         BRAND = params["brand"]
         RATING = params["rating"]
         TAG = params["tag"]
@@ -166,7 +166,10 @@ class API(object):
             "price": price_list,
             "rating": rating_list,
             "product_link": product_link_list
-        }).sort_values(by=SORT_BY, ascending=SORT_DIRECTION == "")
+        })
+
+        parsed_response.sort_values(by=SORT_BY, ascending=True, inplace=True) \
+            if SORT_DIRECTION == "ascending" else parsed_response.sort_values(by=SORT_BY, ascending=False)
 
         res = {
             "parsed_response": parsed_response,
