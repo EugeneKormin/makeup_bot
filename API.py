@@ -113,6 +113,12 @@ class API(object):
         if "l" in PRICE_RANGE and "g" in PRICE_RANGE:
             FROM, TO = UNIT_PRICE.split('amount:')[1].split(",c")[0], UNIT_PRICE.split('amount:')[2].split(",c")[0]
             return f"price_less_than={TO}&price_greater_than={FROM}"
+        elif "l" in PRICE_RANGE and "g" not in PRICE_RANGE:
+            TO = UNIT_PRICE.split('amount:')[1].split(",c")[0]
+            return f"price_less_than={TO}"
+        elif "l" not in PRICE_RANGE and "g" in PRICE_RANGE:
+            FROM = UNIT_PRICE.split('amount:')[1].split(",c")[0]
+            return f"price_greater_than={FROM}"
 
     @staticmethod
     def __process_rating(RATING):
@@ -173,8 +179,22 @@ class API(object):
         else:
             parsed_response.sort_values(by=SORT_BY, ascending=False, inplace=True)
 
+        sorted_res = []
+
+        for row in parsed_response.iterrows():
+            temp_json = {
+                "name": row[1]["name"],
+                "image_link": row[1]["image_link"],
+                "description": row[1]["description"],
+                "price": row[1]["price"],
+                "rating": row[1]["rating"],
+                "product_link": row[1]["product_link"],
+            }
+
+            sorted_res.append(temp_json)
+
         res = {
-            "parsed_response": parsed_response.to_json(),
+            "parsed_response": sorted_res,
             "category": CHECK_CATEGORY,
             "tag": CHECK_TAG
         }
