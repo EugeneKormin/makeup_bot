@@ -108,6 +108,17 @@ class API(object):
 
         return CHECK_CATEGORY, CHECK_TAG
 
+    @staticmethod
+    def __process_price(PRICE_RANGE, UNIT_PRICE):
+        if "l" in PRICE_RANGE and "g" in PRICE_RANGE:
+            FROM, TO = UNIT_PRICE.split('amount:')[1].split(",c")[0], UNIT_PRICE.split('amount:')[2].split(",c")[0]
+            return f"price_less_than={TO}&price_greater_than={FROM}"
+
+    @staticmethod
+    def __process_rating(RATING):
+        FROM, TO = RATING.split('_')[0], RATING.split('_')[1]
+        return f"rating_less_than={TO}&rating_greater_than={FROM}"
+
     def send_api(self, params) -> str:
         BRAND = params["brand"]
         RATING = params["rating"]
@@ -115,9 +126,12 @@ class API(object):
         PRICE_RANGE = params["price_range"]
         TYPE = params["type"]
         CATEGORY = params["category"]
-        UNIT_PRICE = params["unit-currency"]
+        UNIT_PRICE = params["currency"]
         SORT_DIRECTION = params["sort_direction"]
-        SORT_BY = params["sort_by"]
+        SORT_BY = params["sort_by"].split(' ')[2]
+
+        PRICE_RANGE = self.__process_price(PRICE_RANGE=PRICE_RANGE, UNIT_PRICE=UNIT_PRICE)
+        RATING = self.__process_rating(RATING=RATING)
 
         REQUEST = f"http://makeup-api.herokuapp.com/api/v1/products.json?" \
                   f"{PRICE_RANGE}&brand={BRAND}&rating={RATING}&product_type={TYPE}&category={CATEGORY}&tag={TAG}"
@@ -134,27 +148,30 @@ class API(object):
         image_link_list = []
         description_list = []
         price_list = []
+        rating_list = []
         product_link_list = []
 
         for el in data:
             name_list.append(el['name'])
             image_link_list.append(el['image_link'])
             description_list.append(el['description'])
-            price_list.append(el['price'])
+            price_list.append(float(el['price']))
+            rating_list.append(float(el["rating"]))
             product_link_list.append(el['product_link'])
 
         parsed_response = pd.DataFrame({
             "name": name_list,
             "image_link": image_link_list,
             "description": description_list,
-            "price":price_list,
+            "price": price_list,
+            "rating": rating_list,
             "product_link": product_link_list
-        }).sort_values(by="price")
+        }).sort_values(by=SORT_BY, ascending=SORT_DIRECTION == "")
 
         res = {
             "parsed_response": parsed_response,
             "category": CHECK_CATEGORY,
             "tag": CHECK_TAG
         }
-
+        
         return res
