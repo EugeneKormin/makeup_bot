@@ -168,11 +168,13 @@ class API(object):
             "product_link": product_link_list
         })
 
-        parsed_response.sort_values(by=SORT_BY, ascending=True, inplace=True) \
-            if SORT_DIRECTION == "ascending" else parsed_response.sort_values(by=SORT_BY, ascending=False)
+        if SORT_DIRECTION == "ascending":
+            parsed_response.sort_values(by=SORT_BY, ascending=True, inplace=True)
+        else:
+            parsed_response.sort_values(by=SORT_BY, ascending=False, inplace=True)
 
         res = {
-            "parsed_response": parsed_response,
+            "parsed_response": parsed_response.to_json(),
             "category": CHECK_CATEGORY,
             "tag": CHECK_TAG
         }
